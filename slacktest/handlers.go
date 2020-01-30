@@ -81,6 +81,26 @@ func (sts *Server) postMessageHandler(w http.ResponseWriter, r *http.Request) {
 		m.User = BotIDFromContext(r.Context())
 		m.Username = BotNameFromContext(r.Context())
 	}
+
+	if blocksParam := values.Get("blocks"); blocksParam != "" {
+		decoded, err := url.QueryUnescape(blocksParam)
+		if err != nil {
+			msg := fmt.Sprintf("Unable to decode blocks: %s", err.Error())
+			log.Printf(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		var blocks slack.Blocks
+		aJErr := json.Unmarshal([]byte(decoded), &blocks)
+		if aJErr != nil {
+			msg := fmt.Sprintf("Unable to decode blocks string to json: %s", aJErr.Error())
+			log.Printf(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		m.Blocks = blocks
+	}
+
 	attachments := values.Get("attachments")
 	if attachments != "" {
 		decoded, err := url.QueryUnescape(attachments)
