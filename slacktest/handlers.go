@@ -127,7 +127,7 @@ func (sts *Server) postMessageHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	go sts.queueForWebsocket(string(jsonMessage), serverAddr)
+	go sts.postProcessMessage(string(jsonMessage), serverAddr)
 	_, _ = w.Write([]byte(resp))
 }
 
